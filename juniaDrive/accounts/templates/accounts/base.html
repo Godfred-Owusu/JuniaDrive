@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>juniaDrive Dashboard</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">  <!-- Optional: Link your custom CSS -->
+</head>
+<body class="bg-gray-100">
+
+    <!-- Sidebar Section -->
+    <div class="flex h-screen">
+        <div class="w-1/5 bg-gray-800 text-white p-5">
+            <h2 class="text-3xl font-bold mb-10 text-center">juniaDrive</h2>
+            <ul>
+                <li><a href="" class="block py-2 px-4 hover:bg-gray-700 rounded">Home</a></li>
+                <li><a href="" class="block py-2 px-4 hover:bg-gray-700 rounded">Dashboard</a></li>
+                <li><a href="" class="block py-2 px-4 hover:bg-gray-700 rounded">Delete</a></li>
+            </ul>
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="block w-full p-4 text-center bg-red-600 text-white hover:bg-red-700 mt-4">Logout</button>
+            </form>
+        </div>
+
+        <!-- Main Content Section -->
+        <div class="flex-1 p-10">
+            {% block content %}
+            <!-- Main content will be inserted here -->
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-container" class="fixed top-0 right-0 p-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast-message bg-green-500 text-white p-3 rounded shadow-lg mb-2">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        // JavaScript to automatically remove toast messages after a few seconds
+        setTimeout(() => {
+            const toastMessages = document.querySelectorAll('.toast-message');
+            toastMessages.forEach(toast => toast.remove());
+        }, 3000); // Remove after 3 seconds
+    </script>
+
+</body>
+</html>
