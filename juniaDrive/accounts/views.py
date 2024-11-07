@@ -353,22 +353,26 @@ def move_file(request, file_id):
 
     return render(request, 'accounts/move_file.html', {'form': form, 'file': file})
 
-# def copy_file(request, file_id):
-#     file = get_object_or_404(File, id=file_id, folder__user=request.user)
-    
-#     if request.method == 'POST':
-#         form = MoveCopyFileForm(request.POST, user=request.user)
-#         if form.is_valid():
-#             target_folder = form.cleaned_data['target_folder']
-#             # Create a copy of the file in the target folder
-#             File.objects.create(
-#                 name=file.name,
-#                 folder=target_folder,
-#                 file=file.file,  # Note: This reuses the file reference; for a true file copy, handle it in storage
-#                 size=file.size
-#             )
-#             messages.success(request, f"File '{file.name}' copied successfully.")
-#             return redirect('folder_detail', folder_id=target_folder.id)
-#     else:
-#         form = MoveCopyFileForm(user=request.user)
-#     return render(request, 'accounts/move_copy_file.html', {'form': form, 'file': file, 'action': 'copy'})
+def copy_file(request, file_id):
+    # Get the file to be copied and ensure it belongs to the logged-in user
+    file = get_object_or_404(File, id=file_id, folder__user=request.user)
+    folder = file.folder  # The folder where the copy will be placed
+
+    # Generate a new name to avoid naming conflicts
+    new_name = f"{file.name} (Copy)"
+    count = 1
+    # Check if the new name already exists in the folder and modify if necessary
+    while File.objects.filter(name=new_name, folder=folder).exists():
+        count += 1
+        new_name = f"{file.name} (Copy {count})"
+
+    # Create a new file entry with the new name
+    File.objects.create(
+        name=new_name,
+        folder=folder,
+        file=file.file,  # Reference the same file data
+        size=file.size
+    )
+
+    messages.success(request, f"File '{file.name}' copied successfully as '{new_name}'.")
+    return redirect('folder_detail', folder_id=folder.id)

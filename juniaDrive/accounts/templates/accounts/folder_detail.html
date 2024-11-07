@@ -54,6 +54,7 @@
 
                         <div class="mt-4">
                             <a href="{% url 'move_file' file_info.file.id %}" class="bg-yellow-500 text-white px-3 py-1 rounded">Move</a>
+                            <a href="{% url 'copy_file' file_info.file.id %}" class="bg-green-500 text-white px-3 py-1 rounded">Copy</a>
                         </div>
                     </li>
                 {% endfor %}
