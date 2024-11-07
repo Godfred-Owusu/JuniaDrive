@@ -27,15 +27,15 @@
                 <div class="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out relative">
                     <!-- Folder Link -->
                     <a href="{% url 'folder_detail' folder.id %}" class="block text-center">
-                        <div class="text-4xl text-indigo-600 mb-3">
+                        <div class="text-4xl text-indigo-600 mb-2">
                             <!-- Folder Icon -->
-                            <span class="material-icons">folder</span>
+                            <span class="material-icons text-7xl">folder</span>
                         </div>
                         <span class="text-lg font-bold text-gray-800">{{ folder.name }}</span>
                     </a>
                     <!-- Delete Button with Icon -->
                     <button onclick="openDeleteModal({{ folder.id }}, '{{ folder.name }}')" class="absolute top-2 right-2 text-red-500 hover:text-red-700 transition duration-200 ease-in-out">
-                        <span class="material-icons">delete</span>
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
             {% endfor %}
@@ -89,7 +89,7 @@
     function openDeleteModal(folderId, folderName) {
         const modal = document.getElementById('deleteFolderModal');
         document.getElementById('folderNameToDelete').innerText = folderName;
-        document.getElementById('deleteFolderForm').action = `/accounts/folder/${folderId}/delete/`;
+        document.getElementById('deleteFolderForm').action = `/folder/${folderId}/delete/`;
         modal.classList.remove('opacity-0', 'pointer-events-none');
         modal.querySelector('.transform').classList.remove('scale-95');
         modal.querySelector('.transform').classList.add('scale-100');
