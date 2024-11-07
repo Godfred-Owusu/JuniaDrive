@@ -7,6 +7,7 @@
     {% load static %}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">  <!-- Optional: Link your custom CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100">
 
@@ -16,7 +17,7 @@
             <h2 class="text-3xl font-bold mb-10 text-center">juniaDrive</h2>
             <ul>
                 <li><a href={% url 'home' %} class="block py-2 px-4 hover:bg-gray-700 rounded">Home</a></li>
-                <li><a href="" class="block py-2 px-4 hover:bg-gray-700 rounded">Dashboard</a></li>
+                <li><a href={% url 'dashboard' %} class="block py-2 px-4 hover:bg-gray-700 rounded">Dashboard</a></li>
                 <li><a href="" class="block py-2 px-4 hover:bg-gray-700 rounded">Delete</a></li>
             </ul>
             <form method="POST" action="{% url 'logout' %}">

@@ -51,12 +51,25 @@
                             {% csrf_token %}
                             <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded">Delete</button>
                         </form>
+
+                        <div class="mt-4">
+                            <a href="{% url 'move_file' file_info.file.id %}" class="bg-yellow-500 text-white px-3 py-1 rounded">Move</a>
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
             <p class="text-gray-500">No files available in this folder.</p>
         {% endif %}
+    </div>
+
+    <div class="mb-6">
+        <h3 class="text-xl mb-4">File Counts:</h3>
+        <ul>
+            {% for folder_name, count in folder_counts.items %}
+                <li><strong>{{ folder_name }}:</strong> {{ count }} files</li>
+            {% endfor %}
+        </ul>
     </div>
 {% endblock %}
 
