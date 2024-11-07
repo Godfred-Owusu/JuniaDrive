@@ -7,4 +7,12 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('home/', views.home, name='home'),
     path('logout/', LogoutView.as_view(next_page='/accounts/login/'), name='logout'),
+     path('folders/', views.folder_list, name='folder_list'),
+    # path('folders/<int:folder_id>/upload/', views.upload_file, name='upload_file'),
+    path('folders/<int:folder_id>/', views.folder_detail, name='folder_detail'),
+     path('create_folder/', views.create_folder, name='create_folder'),
+      
+      path('folders/<int:folder_id>/', views.folder_detail, name='folder_detail'),
+       path('folders/<int:folder_id>/upload/', views.file_upload, name='file_upload'),
+     path('file/<int:file_id>/delete/', views.delete_file, name='delete_file'),
 ]

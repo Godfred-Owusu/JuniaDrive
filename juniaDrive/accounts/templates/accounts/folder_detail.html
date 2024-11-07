@@ -1,0 +1,215 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-4">{{ folder.name }}</h1>
+        
+        <h3 class="text-xl mb-4">Files in this folder:</h3>
+        
+        <!-- Upload Form -->
+        <form action="{% url 'file_upload' folder.id %}" method="post" enctype="multipart/form-data" class="mb-6">
+            {% csrf_token %}
+            <label for="file" class="block text-lg mb-2">Upload a file:</label>
+            <input type="file" name="file" id="file" class="border p-2 rounded w-full mb-4">
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded">Upload File</button>
+        </form>
+
+        {% if folder.files.all %}
+            <!-- Grid layout for files -->
+            <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {% for file_info in file_previews %}
+                    <li class="bg-white shadow-md p-4 rounded-lg flex flex-col items-center space-y-4">
+                        <strong class="text-center">{{ file_info.file.name }}</strong>
+                        <span class="text-gray-600 text-sm">({{ file_info.file.size }} KB)</span>
+                        
+                        {% if file_info.preview_type == 'image_preview' %}
+                            <img src="{{ file_info.file.file.url }}" alt="Image preview" class="w-32 h-32 object-cover rounded">
+                        
+                        {% elif file_info.preview_type == 'pdf_preview' %}
+                            <a href="{{ file_info.file.file.url }}" target="_blank">
+                                <img src="{% static 'images/pdf.png' %}" alt="PDF thumbnail" class="w-16 h-16 object-cover">
+                            </a>
+                        
+                        {% elif file_info.preview_type == 'audio_preview' %}
+                            <audio controls class="w-full ">
+                                <source src="{{ file_info.file.file.url }}" type="audio/mpeg">
+                            </audio>
+                        
+                        {% elif file_info.preview_type == 'video_preview' %}
+                            <video class="w-full h-40 object-cover" controls>
+                                <source src="{{ file_info.file.file.url }}" type="video/mp4">
+                            </video>
+                        
+                        {% elif file_info.preview_type == 'text_preview' %}
+                            <pre class="bg-gray-100 p-2 rounded w-full overflow-auto text-xs">{{ file_info.file.file.read|slice:":1000" }}</pre>
+                        
+                        {% else %}
+                            <a href="{{ file_info.file.file.url }}" download class="text-blue-500 hover:underline">Download File</a>
+                        {% endif %}
+
+                        <form action="{% url 'delete_file' file_info.file.id %}" method="post" class="mt-4">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-500">No files available in this folder.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'accounts/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-4">{{ folder.name }}</h1>
+        
+        <h3 class="text-xl mb-4">Files in this folder:</h3>
+        
+        <!-- Upload Form -->
+        <form action="{% url 'file_upload' folder.id %}" method="post" enctype="multipart/form-data" class="mb-6">
+            {% csrf_token %}
+            <label for="file" class="block text-lg mb-2">Upload a file:</label>
+            <input type="file" name="file" id="file" class="border p-2 rounded w-full mb-4">
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded">Upload File</button>
+        </form>
+
+        {% if folder.files.all %}
+            <ul class="list-none">
+                {% for file_info in file_previews %}
+    <li>
+        <strong>{{ file_info.file.name }}</strong> ({{ file_info.file.size }} KB)
+        
+        {% if file_info.preview_type == 'image_preview' %}
+            <img src="{{ file_info.file.file.url }}" alt="Image preview" class="preview">
+        {% elif file_info.preview_type == 'pdf_preview' %}
+        <a href="{{ file_info.file.file.url }}" target="_blank">
+            <img src="{% static 'images/pdf.png' %}" alt="PDF thumbnail" class="preview">
+        </a>
+        {% elif file_info.preview_type == 'audio_preview' %}
+            <audio controls>
+                <source src="{{ file_info.file.file.url }}" type="audio/mpeg">
+            </audio>
+        {% elif file_info.preview_type == 'video_preview' %}
+            <video width="300" controls>
+                <source src="{{ file_info.file.file.url }}" type="video/mp4">
+            </video>
+        {% elif file_info.preview_type == 'text_preview' %}
+            <pre>{{ file_info.file.file.read|slice:":1000" }}</pre>
+        {% else %}
+            <a href="{{ file_info.file.file.url }}" download>Download File</a>
+        {% endif %}
+    </li>
+{% endfor %}
+
+            </ul>
+        {% else %}
+            <p class="text-gray-500">No files available in this folder.</p>
+        {% endif %}
+    </div>
+    <img src="" alt="" srcset="">
+{% endblock %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+{% comment %} {% extends 'accounts/base.html' %}
+
+{% block content %}
+<h1>{{ folder.name }}</h1>
+
+<h3>Files in this folder:</h3>
+{% if folder.files.all %}
+    <ul>
+    {% for file in folder.files.all %}
+        <li>
+            <strong>{{ file.name }}</strong> ({{ file.size }} KB)
+
+            {% if get_file_preview(file) == 'image_preview' %}
+                <br><img src="{{ file.file.url }}" alt="Image preview" style="max-width: 200px;">
+            {% elif get_file_preview(file) == 'pdf_preview' %}
+                <br><a href="{{ file.file.url }}" target="_blank">Preview PDF</a>
+            {% elif get_file_preview(file) == 'audio_preview' %}
+                <br><audio controls><source src="{{ file.file.url }}" type="audio/mpeg">Your browser does not support the audio element.</audio>
+            {% elif get_file_preview(file) == 'video_preview' %}
+                <br><video width="200" controls><source src="{{ file.file.url }}" type="video/mp4">Your browser does not support the video tag.</video>
+            {% elif get_file_preview(file) == 'text_preview' %}
+                <br><pre>{{ file.file.read|slice:":1000" }}</pre>  <!-- First 1000 chars of the text -->
+            {% else %}
+                <br><a href="{{ file.file.url }}" download>Download File</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No files in this folder yet.</p>
+{% endif %}
+
+<h3>Upload a new file:</h3>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+</form>
+{% endblock %}
+ {% endcomment %}
+
+
+
+
+
+
+
+
+{% comment %} {% extends 'accounts/base.html' %}
+
+{% block content %}
+<h1>{{ folder.name }}</h1>
+
+<h3>Files in this folder:</h3>
+{% if folder.files.all %}
+    <ul>
+    {% for file in folder.files.all %}
+        <li>{{ file.name }} ({{ file.size }} KB)</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No files in this folder yet.</p>
+{% endif %}
+
+<h3>Upload a new file:</h3>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+</form>
+{% endblock %} {% endcomment %}
+
+
+
+{% comment %} {% extends 'accounts/base.html' %}
+
+{% block content %}
+<h1>{{ folder.name }}</h1>
+
+<h3>Files in this folder:</h3>
+{% if folder.files.all %}
+    <ul>
+    {% for file in folder.files.all %}
+        <li>{{ file.name }} ({{ file.size }} KB)</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No files in this folder yet.</p>
+{% endif %}
+{% endblock %} {% endcomment %}
