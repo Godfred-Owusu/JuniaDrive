@@ -376,3 +376,11 @@ def copy_file(request, file_id):
 
     messages.success(request, f"File '{file.name}' copied successfully as '{new_name}'.")
     return redirect('folder_detail', folder_id=folder.id)
+
+
+def delete_folder(request, folder_id):
+    folder = get_object_or_404(Folder, id=folder_id, user=request.user)
+    if request.method == 'POST':
+        folder.delete()
+        messages.success(request, f'Folder "{folder.name}" deleted successfully.')
+    return redirect('home')
