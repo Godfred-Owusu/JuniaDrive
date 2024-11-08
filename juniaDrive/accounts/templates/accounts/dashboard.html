@@ -36,7 +36,7 @@
                 datasets: [{
                     label: 'File Counts',
                     data: [{% for folder_name, count in folder_counts.items %}{{ count }},{% endfor %}],  // File counts
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    backgroundColor: '#024CAA',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 }]
@@ -73,7 +73,7 @@
                 labels: ['Space Used', 'Space Remaining'],
                 datasets: [{
                     data: [{{ space_used|floatformat:0 }}, {{ space_remaining|floatformat:0 }}],
-                    backgroundColor: ['#FF5733', '#ABBA7C'],
+                    backgroundColor: ['#FF5733', '#024CAA'],
                     hoverOffset: 4
                 }]
             };
