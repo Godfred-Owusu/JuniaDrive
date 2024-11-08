@@ -112,7 +112,7 @@ Take a look at some screenshots of SkyVault in action:
 
 > *Gives you access to copy, delete, download a file, and to also move a file to a different folder*
 
-### 6️⃣ **File Upload**
+### 6️⃣ **File Dashboar**
 ![Info](/juniaDrive/accounts/static/images/dashboard.png)
 
 > *Access detailed information and usage statistics for your account.*
