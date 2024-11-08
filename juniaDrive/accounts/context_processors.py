@@ -3,6 +3,7 @@ from django.db.models import Sum
 from .models import File
 
 def storage_info(request):
+ if request.user.is_authenticated:
     storage_limit = 100 * 1024 * 1024  # 100 MB in bytes
     space_used = File.objects.filter(folder__user=request.user).aggregate(total_size=Sum('size'))['total_size'] or 0
     space_remaining = max(storage_limit - space_used, 0)
@@ -14,3 +15,9 @@ def storage_info(request):
         'space_remaining': round(space_remaining / (1024 * 1024), 2),
         'storage_used_percent': storage_used_percent,
     }
+ else:
+    return {
+            'space_used': 0,
+            'space_remaining': 0,
+            'storage_limit': 0,
+        }
