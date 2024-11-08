@@ -31,14 +31,13 @@ A web-based file storage and management system built with Django. This applicati
 
 ## Tech Stack
 
-```plaintext
 Frontend: Tailwind CSS, Material UI, JavaScript
 Backend: Django, Django REST Framework
 Database: SQLite (default)
 Containerization: Docker
 
 
-## 🛠️ **Getting Started with JuniaDrive**
+### 🛠️ **Getting Started with JuniaDrive**
 
 JuniaDrive offers two setup options: Docker or a local development environment
 
@@ -52,7 +51,7 @@ JuniaDrive offers two setup options: Docker or a local development environment
    ```
 3.Access the Application: Go to [http://localhost:8000](http://localhost:8000) to start using JuniaDrive.
 
-### Option 2: Run Locally (Development Mode)
+## Option 2: Run Locally (Development Mode)
 
 1. **Install Dependencies**:
    - Ensure Python and pip are installed on your machine.
