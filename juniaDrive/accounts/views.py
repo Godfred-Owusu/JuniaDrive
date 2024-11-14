@@ -18,6 +18,7 @@ from django.urls import reverse  # Add this import
 from django.db.models import Count, Q,Sum
 # from .forms import MoveCopyFileForm
 from .forms import MoveFileForm
+import uuid
 
 
 def signup(request):
@@ -81,7 +82,7 @@ def user_login(request):
     
 #     return render(request, 'accounts/home.html', {'folders': folders})
 
-@login_required(login_url='login')  # Ensures only logged-in users can access this view
+@login_required(login_url='/login/')  # Ensures only logged-in users can access this view
 def home(request):
     # Check if the user is authenticated before querying
     if not request.user.is_authenticated:
@@ -182,17 +183,133 @@ MAX_UPLOAD_SIZE = 40 * 1024 * 1024  # 40 MB
 #     return render(request, 'accounts/folder_detail.html', {'folder': folder, 'file_previews': file_previews})
 
 
+# def folder_detail(request, folder_id):
+#     folder = get_object_or_404(Folder, id=folder_id, user=request.user)
+#     files = folder.files.all()
+
+#     # Define the default folder names
+#     default_folder_names = ["Documents", "Images", "Videos"]
+
+#     # Initialize counts for each default folder with zero
+#     default_folder_counts = {name: 0 for name in default_folder_names}
+    
+#     # Count files in each default folder and update the dictionary
+#     default_counts = (
+#         File.objects
+#         .filter(folder__name__in=default_folder_names, folder__user=request.user)
+#         .values('folder__name')
+#         .annotate(count=Count('id'))
+#     )
+
+#     # Update default folder counts with actual counts from the query
+#     for item in default_counts:
+#         default_folder_counts[item['folder__name']] = item['count']
+
+#     # Count files in user-created folders (Others)
+#     others_count = File.objects.filter(
+#         ~Q(folder__name__in=default_folder_names),  # Exclude default folders
+#         folder__user=request.user
+#     ).count()
+    
+#     # Add "Others" to the dictionary
+#     default_folder_counts['Others'] = others_count
+
+#     # Process previews for each file (as previously done)
+#     file_previews = []
+#     for file in files:
+#         if file.name.endswith(('jpg', 'jpeg', 'png', 'gif')):
+#             preview_type = 'image_preview'
+#         elif file.name.endswith('pdf'):
+#             preview_type = 'pdf_preview'
+#         elif file.name.endswith(('mp3', 'wav', 'ogg')):
+#             preview_type = 'audio_preview'
+#         elif file.name.endswith(('mp4', 'avi', 'mov')):
+#             preview_type = 'video_preview'
+#         elif file.name.endswith(('txt', 'html', 'py', 'js', 'css')):
+#             preview_type = 'text_preview'
+#         else:
+#             preview_type = None
+
+#         file_previews.append({'file': file, 'preview_type': preview_type})
+
+#     # Pass folder counts to the template
+#     return render(
+#         request,
+#         'accounts/folder_detail.html',
+#         {
+#             'folder': folder,
+#             'file_previews': file_previews,
+#             'folder_counts': default_folder_counts
+#         }
+#     )
+
+
+
+# def folder_detail(request, folder_id):
+#     folder = get_object_or_404(Folder, id=folder_id, user=request.user)
+#     files = folder.files.all()
+#     folders = Folder.objects.filter(user=request.user).exclude(id=folder_id)
+#     # Define the default folder names
+#     default_folder_names = ["Documents", "Images", "Videos"]
+
+#     # Initialize counts for each default folder with zero
+#     default_folder_counts = {name: 0 for name in default_folder_names}
+
+#     # Count files in each default folder and update the dictionary
+#     default_counts = (
+#         File.objects
+#         .filter(folder__name__in=default_folder_names, folder__user=request.user)
+#         .values('folder__name')
+#         .annotate(count=Count('id'))
+#     )
+
+#     # Update default folder counts with actual counts from the query
+#     for item in default_counts:
+#         default_folder_counts[item['folder__name']] = item['count']
+
+#     # Count files in user-created folders (Others)
+#     others_count = File.objects.filter(
+#         ~Q(folder__name__in=default_folder_names),  # Exclude default folders
+#         folder__user=request.user
+#     ).count()
+
+#     # Add "Others" to the dictionary
+#     default_folder_counts['Others'] = others_count
+
+#     # Process previews for each file using get_preview_type
+#     file_previews = [{'file': file, 'preview_type': file.get_preview_type()} for file in files]
+
+#     # Pass folder counts to the template
+#     return render(
+#         request,
+#         'accounts/folder_detail.html',
+#         {
+#             'folder': folder,
+#             'file_previews': file_previews,
+#             'folder_counts': default_folder_counts
+#         }
+#     )
+
+
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Count, Q
+from .models import Folder, File
+
 def folder_detail(request, folder_id):
+    # Get the current folder and files
     folder = get_object_or_404(Folder, id=folder_id, user=request.user)
     files = folder.files.all()
 
-    # Define the default folder names
+    # List of folders for the move modal, excluding the current folder
+    folders = Folder.objects.filter(user=request.user).exclude(id=folder_id)
+
+    # Default folder names for categorization
     default_folder_names = ["Documents", "Images", "Videos"]
 
-    # Initialize counts for each default folder with zero
+    # Initialize default folder counts with zero
     default_folder_counts = {name: 0 for name in default_folder_names}
-    
-    # Count files in each default folder and update the dictionary
+
+    # Count files for each default folder
     default_counts = (
         File.objects
         .filter(folder__name__in=default_folder_names, folder__user=request.user)
@@ -206,41 +323,28 @@ def folder_detail(request, folder_id):
 
     # Count files in user-created folders (Others)
     others_count = File.objects.filter(
-        ~Q(folder__name__in=default_folder_names),  # Exclude default folders
+        ~Q(folder__name__in=default_folder_names),
         folder__user=request.user
     ).count()
-    
-    # Add "Others" to the dictionary
     default_folder_counts['Others'] = others_count
 
-    # Process previews for each file (as previously done)
-    file_previews = []
-    for file in files:
-        if file.name.endswith(('jpg', 'jpeg', 'png', 'gif')):
-            preview_type = 'image_preview'
-        elif file.name.endswith('pdf'):
-            preview_type = 'pdf_preview'
-        elif file.name.endswith(('mp3', 'wav', 'ogg')):
-            preview_type = 'audio_preview'
-        elif file.name.endswith(('mp4', 'avi', 'mov')):
-            preview_type = 'video_preview'
-        elif file.name.endswith(('txt', 'html', 'py', 'js', 'css')):
-            preview_type = 'text_preview'
-        else:
-            preview_type = None
+    # Prepare file previews with their preview types
+    file_previews = [{'file': file, 'preview_type': file.get_preview_type()} for file in files]
 
-        file_previews.append({'file': file, 'preview_type': preview_type})
-
-    # Pass folder counts to the template
+    # Render the template with all required context
     return render(
         request,
         'accounts/folder_detail.html',
         {
             'folder': folder,
             'file_previews': file_previews,
-            'folder_counts': default_folder_counts
+            'folder_counts': default_folder_counts,
+            'folders': folders  # Add this for the move modal
         }
     )
+
+
+
 def create_folder(request):
     if request.method == 'POST':
         form = FolderForm(request.POST)
@@ -353,6 +457,31 @@ def move_file(request, file_id):
 
     return render(request, 'accounts/move_file.html', {'form': form, 'file': file})
 
+# def copy_file(request, file_id):
+#     # Get the file to be copied and ensure it belongs to the logged-in user
+#     file = get_object_or_404(File, id=file_id, folder__user=request.user)
+#     folder = file.folder  # The folder where the copy will be placed
+
+#     # Generate a new name to avoid naming conflicts
+#     new_name = f"{file.name} (Copy)"
+#     count = 1
+#     # Check if the new name already exists in the folder and modify if necessary
+#     while File.objects.filter(name=new_name, folder=folder).exists():
+#         count += 1
+#         new_name = f"{file.name} (Copy {count})"
+
+#     # Create a new file entry with the new name
+#     File.objects.create(
+#         name=new_name,
+#         folder=folder,
+#         file=file.file,  # Reference the same file data
+#         size=file.size
+#     )
+
+#     messages.success(request, f"File '{file.name}' copied successfully as '{new_name}'.")
+#     return redirect('folder_detail', folder_id=folder.id)
+
+
 def copy_file(request, file_id):
     # Get the file to be copied and ensure it belongs to the logged-in user
     file = get_object_or_404(File, id=file_id, folder__user=request.user)
@@ -367,12 +496,15 @@ def copy_file(request, file_id):
         new_name = f"{file.name} (Copy {count})"
 
     # Create a new file entry with the new name
-    File.objects.create(
+    copied_file = File.objects.create(
         name=new_name,
         folder=folder,
         file=file.file,  # Reference the same file data
         size=file.size
     )
+
+    # Use get_preview_type to determine the preview type of the copied file
+    copied_file_preview_type = copied_file.get_preview_type()
 
     messages.success(request, f"File '{file.name}' copied successfully as '{new_name}'.")
     return redirect('folder_detail', folder_id=folder.id)
@@ -384,3 +516,78 @@ def delete_folder(request, folder_id):
         folder.delete()
         messages.success(request, f'Folder "{folder.name}" deleted successfully.')
     return redirect('home')
+
+
+
+# def generate_share_link(request, file_id):
+#     file = get_object_or_404(File, id=file_id, folder__user=request.user)
+#     if not file.share_link:
+#         file.share_link = uuid.uuid4()
+#         file.save()
+#     return redirect('share_file', file_id=file.id)
+
+# def generate_share_link(request, file_id):
+#     file = get_object_or_404(File, id=file_id, folder__user=request.user)
+#     if not file.share_link:
+#         file.share_link = uuid.uuid4()
+#         file.save()
+
+#     # Generate the correct shareable URL
+#     share_url = request.build_absolute_uri(reverse('share_file_view', args=[file.share_link]))
+
+#     return JsonResponse({'share_url': share_url})
+
+
+def share_file_view(request, share_link):
+    file = get_object_or_404(File, share_link=share_link, shared=True)
+    return render(request, 'accounts/shared_file_view.html', {'file': file})
+
+
+# def share_file(request, file_id):
+#     file = get_object_or_404(File, id=file_id, folder__user=request.user)
+#     share_link = file.share_link
+#     return render(request, 'accounts/share_file.html', {'file': file, 'share_link': share_link})
+
+import logging
+logger = logging.getLogger(__name__)
+
+def share_file_view(request, share_link):
+    # Fetch the file by its unique share link
+    file = get_object_or_404(File, share_link=share_link)
+
+    # Determine the type of file and choose the appropriate template
+    file_extension = file.name.split('.')[-1].lower()
+
+    # Use different templates or embed options based on file type
+    if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
+        # Render a template to display an image
+        return render(request, 'accounts/share_image.html', {'file': file})
+    elif file_extension == 'pdf':
+        # Render a template for PDF display
+        return render(request, 'accounts/share_pdf.html', {'file': file})
+    elif file_extension in ['mp3', 'wav']:
+        # Render a template for audio file
+        return render(request, 'accounts/share_audio.html', {'file': file})
+    elif file_extension in ['mp4', 'mov']:
+        # Render a template for video file
+        return render(request, 'accounts/share_video.html', {'file': file})
+    else:
+        # Default to a file download option for unsupported types
+        return render(request, 'accounts/share_file_download.html', {'file': file})
+
+
+from django.http import JsonResponse
+
+def generate_share_link(request, file_id):
+    file = get_object_or_404(File, id=file_id, folder__user=request.user)
+    if not file.share_link:
+        file.share_link = uuid.uuid4()
+        file.save()
+
+    # Generate the absolute shareable URL
+    share_url = request.build_absolute_uri(reverse('share_file_view', args=[file.share_link]))
+
+    return JsonResponse({'share_url': share_url})
+
+
+

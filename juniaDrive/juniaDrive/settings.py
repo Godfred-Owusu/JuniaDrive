@@ -13,11 +13,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import logging
+from dotenv import load_dotenv
 logging.basicConfig(level=logging.DEBUG)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -28,8 +29,9 @@ SECRET_KEY = 'django-insecure-zk^=)c+_^3x6@vl!)(qvxs+d75c#-lb=mu#o$q)#fu8t8-zrf8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
+TOTAL_STORAGE_SPACE = 10 * 1024 * 1024 * 1024 
 
 # Application definition
 
@@ -51,7 +53,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     
 ]
+
 
 ROOT_URLCONF = 'juniaDrive.urls'
 
@@ -67,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accounts.context_processors.storage_info' 
             ],
         },
     },
@@ -122,8 +127,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",  # Or os.path.join(BASE_DIR, "static") for older Django versions
+# ]
+
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # Or os.path.join(BASE_DIR, "static") for older Django versions
+    os.path.join(BASE_DIR, 'static'),  # Ensure this path is correct
 ]
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

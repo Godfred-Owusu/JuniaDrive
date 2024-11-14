@@ -1,0 +1,37 @@
+{% extends 'accounts/base.html' %}
+{% block content %}
+<h1>Share Link for {{ file.name }}</h1>
+
+<!-- Display full shareable URL in the input field -->
+<div class="flex items-center mt-2">
+    <input type="text" id="shareLink" 
+           value="{{ request.build_absolute_uri }}{{ share_link }}" 
+           readonly 
+           class="border px-3 py-2 rounded-md w-full text-gray-600">
+    <button onclick="copyLink()" 
+            class="ml-2 px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+        Copy Link
+    </button>
+</div>
+
+<!-- JavaScript to copy the link to clipboard -->
+<script>
+    function copyLink() {
+        const shareLinkInput = document.getElementById("shareLink");
+        shareLinkInput.select();
+        document.execCommand("copy");
+        alert("Link copied to clipboard!");
+    }
+</script>
+</div>
+
+<script>
+    function copyLink() {
+        var copyText = document.getElementById("shareLink");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);  // For mobile devices
+        document.execCommand("copy");
+        alert("Copied the link: " + copyText.value);
+    }
+</script>
+{% endblock %}
